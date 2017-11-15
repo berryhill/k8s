@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: stage
+  annotations:
+    kompose.cmd: kompose convert -f tester-compose.yaml
+    kompose.version: 1.4.0 (c7964e7)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx-ssl-proxy
+  name: nginx-ssl-proxy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx-ssl-proxy
+    spec:
+      containers:
+      - env:
+        - name: SERVERNAME
+          value: effortlessmarketplace.com
+        - name: UPSTREAM
+          value: 10.31.240.138
+        # image: danieldent/nginx-ssl-proxy
+        image: matthewberryhill/elt-proxy
+        name: nginx-ssl-proxy
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/letsencrypt
+          name: nginx-ssl-proxy-claim1
+      restartPolicy: Always
+      volumes:
+      - name: nginx-ssl-proxy-claim1
+        persistentVolumeClaim:
+          claimName: nginx-ssl-proxy-claim1
+status: {}
