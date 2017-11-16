@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: mysql-2
+  labels:
+    app: mysql
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
