@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: stage
+  namespace: proxy
   annotations:
     kompose.cmd: kompose convert -f tester-compose.yaml
     kompose.version: 1.4.0 (c7964e7)
@@ -24,9 +24,9 @@ spec:
         - name: SERVERNAME
           value: effortlessmarketplace.com
         - name: UPSTREAM
-          value: 10.31.240.138
+          value: 10.23.253.44
         # image: danieldent/nginx-ssl-proxy
-        image: matthewberryhill/elt-proxy
+        image: matthewberryhill/proxy:1
         name: nginx-ssl-proxy
         ports:
         - containerPort: 80

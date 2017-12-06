@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  namespace: stage
+  namespace: proxy
   creationTimestamp: null
   labels:
     io.kompose.service: nginx-ssl-proxy-claim1
