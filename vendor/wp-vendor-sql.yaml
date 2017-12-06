@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: wp
+  name: mysql-vendor
+  labels:
+    app: mysql-vendor
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3306
+  selector:
+    app: mysql-vendor
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: wp
+  name: mysql-vendor
+  labels:
+    app: mysql-vendor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-vendor
+  template:
+    metadata:
+      labels:
+        app: mysql-vendor
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-pass
+                key: password
+          ports:
+            - containerPort: 3306
+              name: mysql-vendor
+          volumeMounts:
+            - name: wordpress-sql
+              mountPath: /var/www/html
+      volumes:
+       - name: wordpress-sql
+         persistentVolumeClaim:
+           claimName: shared-pvc-wp-sql
