@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: wp
+  name: tools
+  labels:
+    app: tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tools
+  template:
+    metadata:
+      labels:
+        app: tools
+    spec:
+      containers:
+        - image: nginx
+          name: tools
+          ports:
+            - containerPort: 80
+              name: tools
+          volumeMounts:
+            - name: wordpress-source
+              mountPath: /wp
+      volumes:
+       - name: wordpress-source
+         persistentVolumeClaim:
+           claimName: shared-pvc-wp-mkt
