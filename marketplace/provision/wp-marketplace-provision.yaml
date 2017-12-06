@@ -1,0 +1,69 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: shared-pvc-wp-mkt
+  namespace: wp
+  annotations:
+    volume.beta.kubernetes.io/storage-class: px-shared-sc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 40Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: wp
+  labels:
+    app: wordpress
+  name: wordpress
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: 35.192.124.153
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: wordpress
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: wp
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        - image: wordpress
+          name: wordpress
+          env:
+          - name: WORDPRESS_DB_HOST
+            value: mysql:3306
+          - name: WORDPRESS_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-pass
+                key: password
+          ports:
+            - containerPort: 80
+              name: wordpress
+          volumeMounts:
+            - name: wordpress-source
+              mountPath: /var/www/html
+      volumes:
+       - name: wordpress-source
+         persistentVolumeClaim:
+           claimName: shared-pvc-wp-mkt

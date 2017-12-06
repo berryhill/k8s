@@ -1,0 +1,64 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: shared-pvc-wp-sql
+  namespace: wp
+  annotations:
+    volume.beta.kubernetes.io/storage-class: px-shared-sc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 40Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: wp
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: wp
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-pass
+                key: password
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: wordpress-sql
+              mountPath: /var/www/html
+      volumes:
+       - name: wordpress-sql
+         persistentVolumeClaim:
+           claimName: shared-pvc-wp-sql

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: prod
-  name: mysql-2
+  namespace: wp
+  name: mysql-backdoor
   labels:
-    app: mysql
+    app: mysql-backdoor
 spec:
   type: LoadBalancer
   ports:
